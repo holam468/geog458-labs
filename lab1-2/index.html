@@ -14,15 +14,43 @@
 <body>
    <div id='map'></div>
    <script>
+      //Used my Mapbox token to load the map
       mapboxgl.accessToken = 'pk.eyJ1IjoiaG9sYW00NjgiLCJhIjoiY211eDA0MXp3MDNxNjMwcTN5OGdvcWhveSJ9.8l9sCmGvFxg5pD-jDHSeIQ';
       const mymap = new mapboxgl.Map({
              container: 'map',
-             style: 'mapbox://styles/mapbox/light-v11',
-             projection: 'globe', //Display the map as a globe since satellite-v9 defaults to Mercator
-             center: [-96, 37.8],
-             zoom:1
+              // style: 'mapbox://styles/mapbox/light-v11',
+              // projection: 'globe',
+             center: [-122.313, 47.661], //Centered at University District, Seattle
+             zoom:15 //zoomed in enough to show details of the neighborhood
           });
-// code from the next step will go here!
+mymap.addControl(new mapboxgl.FullscreenControl()); //Add fullscreen button
+
+mymap.addControl(new mapboxgl.NavigationControl()); //Add zoom
+
+
+mymap.on('style.load', () => {
+   //change lighting to dusk
+   mymap.setConfigProperty('basemap', 'lightPreset', 'dusk');
+   // Does not show symbols for infrastructures
+   mymap.setConfigProperty('basemap', 'showPointOfInterestLabels', false);
+   // Show road labels
+   mymap.setConfigProperty('basemap', 'showRoadLabels', true);
+   // Show transit labels
+   mymap.setConfigProperty('basemap', 'showTransitLabels', true);
+   // Set color theme as default
+   mymap.setConfigProperty('basemap', 'theme', 'default');
+
+});
+//I chose to keep the road labels visible because I wanted 
+// people to be able to identify different streets around the
+// University District. I think this is useful for people who
+// are not familiar with the neighborhood because it makes it 
+// easier for them to understand where different locations are 
+// and how the streets connect.
+// I also chose to show the transit labels because public 
+// transportation is an important part of getting around the 
+// University District, especially for students. Keeping these 
+// labels visible allows users to identify nearby transit stops.
 </script>
 </body>
 </html>
