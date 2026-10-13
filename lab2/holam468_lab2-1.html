@@ -1,0 +1,93 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <title>My First Map</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link href="https://api.mapbox.com/mapbox-gl-js/v3.6.0/mapbox-gl.css" rel="stylesheet">
+    <script src="https://api.mapbox.com/mapbox-gl-js/v3.6.0/mapbox-gl.js"></script>
+    <style>
+        body { margin: 0; padding: 0; }
+        #map { position: absolute; top: 0; bottom: 0; width: 100%; }
+    </style>
+</head>
+<body>
+    <div id="map"></div>
+    <div id="legend"></div>
+    <script>
+        mapboxgl.accessToken = 'pk.eyJ1IjoiaG9sYW00NjgiLCJhIjoiY211eDA0MXp3MDNxNjMwcTN5OGdvcWhveSJ9.8l9sCmGvFxg5pD-jDHSeIQ';
+
+        const mymap = new mapboxgl.Map({
+            container: 'map',
+            style: 'mapbox://styles/mapbox/satellite-v9',
+            projection: 'globe',
+            center: [-96, 37.8],
+            zoom: 1
+        });
+        
+        mymap.on('style.load', () => {
+            mymap.setFog({});
+        });
+        
+        mymap.on('load', () => {
+            mymap.addSource('earthquakes', {
+                 type: 'geojson',
+                 data: 'https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_month.geojson'
+             });
+
+            mymap.addLayer({
+                id: 'earthquakes-layer',
+                type: 'circle',
+                source: 'earthquakes',
+                paint: {
+                   
+                    'circle-radius': [
+                         'interpolate', ['linear'],
+                        ['to-number', ['get', 'mag'], 0],
+                          1,    0.7,
+                          1.5,  2,
+                          2,    4,
+                          2.5,  5,
+                          3,    6,
+                          3.5,  7,
+                          4.5,  9,
+                          6.5,  15,
+                          8.5,  17,
+                          10.5, 20
+                    ],
+                    'circle-stroke-width': 1,
+                    
+                    'circle-color': [
+                        'interpolate', ['linear'],
+                        ['to-number', ['get', 'mag'], 0],
+                        1,    '#ffff66',
+                        1.5,  '#ffe033',
+                        2,    '#ffcc00',
+                        2.5,  '#ffaa00',
+                        3,    '#ff8800',
+                        3.5,  '#ff5500',
+                        4.5,  '#ff5555',
+                        6.5,  '#800000',
+                        8.5,  '#400000',
+                        10.5, '#1a0000',
+                    ],
+                    'circle-stroke-color': 'white'
+                }
+             });
+            
+mymap.on('click', 'earthquakes-layer', (event) => {
+    const feature = event.features[0];
+    const coordinates = feature.geometry.coordinates.slice(0, 2);
+
+    new mapboxgl.Popup()
+        .setLngLat(coordinates)
+        .setHTML(`<strong>Magnitude:</strong> ${feature.properties.mag}`)
+        .addTo(mymap);
+});
+
+});     
+        // Add the next steps here, inside this script.
+    </script>
+</body>
+</html>
