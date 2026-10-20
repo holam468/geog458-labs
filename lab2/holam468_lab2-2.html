@@ -1,0 +1,136 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <title>Megacities Around the World</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link href="https://api.mapbox.com/mapbox-gl-js/v3.6.0/mapbox-gl.css" rel="stylesheet">
+    <script src="https://api.mapbox.com/mapbox-gl-js/v3.6.0/mapbox-gl.js"></script>
+
+    <style>
+        body { margin: 0; padding: 0; }
+        #map { position: absolute; top: 0; bottom: 0; width: 100%; }
+        #title {
+             position: absolute;
+            top: 20px;
+            left: 20px;
+            background: white;
+            padding: 10px;
+            font-size: 20px;
+            font-weight: bold;
+            border-radius: 5px;
+}
+
+#legend {
+    position: absolute;
+    bottom: 30px;
+    left: 20px;
+    background: white;
+    padding: 15px;
+    border-radius: 5px;
+}
+
+.break {
+    display: flex;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.dot {
+    display: inline-block;
+    border-radius: 50%;
+    margin-right: 10px;
+    flex-shrink: 0;
+}
+
+.dot-label {
+    font-size: 13px;
+}
+
+    </style>
+</head>
+
+<body>
+    <div id="map"></div>
+    <div id="title">Megacities Around the World</div>
+    <div id="legend"></div>
+
+    <script>
+        mapboxgl.accessToken = 'pk.eyJ1IjoiaG9sYW00NjgiLCJhIjoiY211eDA0MXp3MDNxNjMwcTN5OGdvcWhveSJ9.8l9sCmGvFxg5pD-jDHSeIQ';
+
+        const mymap = new mapboxgl.Map({
+            container: 'map',
+            style: 'mapbox://styles/mapbox/light-v11',
+            projection: 'globe',
+            center: [0, 20],
+            zoom: 1.5
+        });
+    
+mymap.on('load', () => {
+    mymap.addSource('population', {
+        type: 'geojson',
+        data: 'data/world-cities.geojson'
+    });
+
+    
+mymap.addLayer({
+    id: 'population-layer',
+    type: 'circle',
+    source: 'population',
+    paint: {
+        'circle-radius': [
+            'step',
+            ['to-number', ['get', 'population'], 0],
+            2,
+            1000000, 4,
+            5000000, 7,
+            10000000, 12
+        ],
+        
+'circle-color': [
+    'step',
+    ['to-number', ['get', 'population'], 0],
+    '#a9c9df',
+    1000000, '#4d98c7',
+    5000000, '#f4a340',
+    10000000, '#d63d2e'
+],
+
+        'circle-stroke-color': 'white',
+        'circle-stroke-width': 0.5,
+        'circle-opacity': 0.8
+    }
+});
+
+mymap.on('click', 'population-layer', (event) => {
+    const feature = event.features[0];
+    const coordinates = feature.geometry.coordinates.slice(0, 2);
+
+    new mapboxgl.Popup()
+        .setLngLat(coordinates)
+        .setHTML(`<strong>City:</strong> ${feature.properties.city}<br><strong>Population:</strong> ${feature.properties.population}`)
+        .addTo(mymap);
+});
+
+});
+
+const grades = ['Under 1M', '1M–5M', '5M–10M', '10M+'];
+const radii = [2, 4, 7, 12];
+const colors = ['#a9c9df', '#4d98c7', '#f4a340', '#d63d2e'];
+
+const legend = document.getElementById('legend');
+
+for (let i = 0; i < grades.length; i++) {
+    const item = document.createElement('div');
+    item.className = 'break';
+
+    item.innerHTML = `<i class="dot" style="width:${radii[i] * 2}px;height:${radii[i] * 2}px;background:${colors[i]}"></i>
+                      <span class="dot-label">${grades[i]}</span>`;
+
+    legend.appendChild(item);
+}
+
+    </script>
+</body>
+</html>
